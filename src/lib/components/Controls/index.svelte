@@ -4,6 +4,7 @@
   import Rain from "./Rain/index.svelte";
   import Settings from "./Settings/index.svelte";
   import Thunder from "./Thunder/index.svelte";
+  import Voice from "./Voice/index.svelte";
 
   const STORAGE_KEY = "Volumes";
   const DEFFAULT_VOLUMES = {
@@ -12,6 +13,7 @@
     campfire: 1,
     jungle: 1,
     main_track: 1,
+    voice: 1,
   };
   // Load previous vols or defualt
   let volumes =
@@ -29,12 +31,13 @@
   <Thunder volume={volumes.thunder} />
   <Jungle volume={volumes.jungle} />
   <CampFire volume={volumes.campfire} />
+  <Voice volume={volumes.voice || 1} />
   <Settings />
 </div>
 
 <style>
   .controls {
-    width: 340px;
+    width: 400px;
     height: 50px;
     color: white;
     display: flex;

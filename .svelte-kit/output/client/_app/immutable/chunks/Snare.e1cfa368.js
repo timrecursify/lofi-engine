@@ -1,0 +1,1 @@
+import{Filter as s,Volume as t,StereoWidener as n,Sampler as a,getDestination as r}from"./index.ccfc3e1e.js";const l="assets/engine/DrumSamples/snare.mp3",o={C4:l},m=new s(6e3,"lowpass"),p=new t(-6),c=new n(.3);class u{sampler;constructor(e){this.sampler=new a(o,()=>{e()}).chain(m,p,c,r())}getSampler(){return this.sampler}}export{u as default};

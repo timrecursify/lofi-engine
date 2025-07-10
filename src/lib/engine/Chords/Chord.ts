@@ -1,34 +1,39 @@
 import { singleOct } from './MajorScale';
 
 class Chord {
-    constructor(degree,intervals,nextChordIdxs) {
+    public degree: number;
+    public semitoneDist: number;
+    public intervals: number[];
+    public nextChordIdxs: number[];
+
+    constructor(degree: number, intervals: number[], nextChordIdxs: number[]) {
         this.degree = degree;
         this.semitoneDist = singleOct[degree-1];
         this.intervals = intervals;
         this.nextChordIdxs = nextChordIdxs;
     }
     
-    degree() {
+    getDegree(): number {
     	return this.degree;
     }
 
-    semitoneDist() {
+    getSemitoneDist(): number {
         return this.semitoneDist;
     }
 
-    intervals() {
+    getIntervals(): number[] {
         return this.intervals;
     }
 
-    nextChordIdxs() {
+    getNextChordIdxs(): number[] {
         return this.nextChordIdxs;
     }
 
-    nextChordIdx() {
+    nextChordIdx(): number {
         return this.nextChordIdxs[Math.floor(Math.random()*this.nextChordIdxs.length)];
     }
 
-    generateVoicing(size) {
+    generateVoicing(size: number): number[] {
         if(size<3)
             return this.intervals.slice(0,3);
         let voicing = this.intervals.slice(1,size);
@@ -42,7 +47,7 @@ class Chord {
         return voicing;
     }
 
-    generateMode() {
+    generateMode(): number[] {
         return this.intervals.map(n => {
             if(n>=12)
                 return n-12;

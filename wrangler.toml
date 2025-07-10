@@ -1,0 +1,128 @@
+name = "chillcast"
+compatibility_date = "2024-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Pages configuration for SvelteKit
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+# ==================================================
+# D1 Database Bindings
+# ==================================================
+
+# Development environment (local/preview)
+[[d1_databases]]
+binding = "DB"
+database_name = "lofi-radio-dev"
+database_id = "01b2957d-9472-4502-9da2-26a34e9ff56e"
+preview_database_id = "01b2957d-9472-4502-9da2-26a34e9ff56e"
+
+# ==================================================
+# KV Namespace Bindings
+# ==================================================
+
+# For small audio clips (<10MB)
+[[kv_namespaces]]
+binding = "CLIPS_KV"
+id = "14674955c7f441b686fc93d6d52fa751"
+preview_id = "14674955c7f441b686fc93d6d52fa751"
+
+# For caching and metadata
+[[kv_namespaces]]
+binding = "CACHE_KV"
+id = "5c32e0e9d9dd4f65b5dddd24821605c1"
+preview_id = "5c32e0e9d9dd4f65b5dddd24821605c1"
+
+# For feature flags storage
+[[kv_namespaces]]
+binding = "KV_FEATURE_FLAGS"
+id = "9738ff4bcf644550ab4f7f450f763d87"
+preview_id = "9738ff4bcf644550ab4f7f450f763d87"
+
+# ==================================================
+# R2 Bucket Bindings
+# ==================================================
+
+# For large audio clips (>=10MB)
+[[r2_buckets]]
+binding = "CLIPS_R2"
+bucket_name = "lofi-radio-clips-staging"
+preview_bucket_name = "lofi-radio-clips-staging"
+
+[[r2_buckets]]
+binding = "AUDIO_R2"
+bucket_name = "lofi-radio-audio-staging"
+preview_bucket_name = "lofi-radio-audio-staging"
+
+[[r2_buckets]]
+binding = "DATA_R2"
+bucket_name = "lofi-radio-data-staging"
+preview_bucket_name = "lofi-radio-data-staging"
+
+# ==================================================
+# Environment Variables
+# ==================================================
+
+[vars]
+ENVIRONMENT = "preview"
+API_VERSION = "v1"
+MAX_CLIP_DURATION = "300"
+MAX_CLIPS_PER_TOPIC = "50"
+PREFERENCE_SYNC_INTERVAL = "1000"
+# Content pipeline configuration
+CONTENT_FETCH_INTERVAL = "900"  # 15 minutes in seconds
+TTS_MAX_CHARS = "30000"         # ElevenLabs character limit
+KV_SIZE_LIMIT = "10485760"      # 10MB in bytes
+STRIPE_PUBLISHABLE_KEY_PREVIEW = "pk_test_staging_placeholder"
+STRIPE_PRO_PRICE_ID_PREVIEW = "price_staging_placeholder"
+# Ad engine configuration
+AD_INTERVAL_SECONDS = "600"  # 10 minutes for free tier
+AD_VOLUME_LEVEL = "0.7"      # 70% volume for ads
+VAST_TAG_URL = "https://staging.example.com/vast.xml"
+
+# ==================================================
+# Production Environment
+# ==================================================
+
+[env.production]
+name = "chillcast-production"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "lofi-radio-production"
+database_id = "2262d715-f947-473f-a3d3-ba785a2a766b"
+
+[[env.production.kv_namespaces]]
+binding = "CLIPS_KV"
+id = "214e76c2e4904d918b3eedcc0df6b152"
+
+[[env.production.kv_namespaces]]
+binding = "CACHE_KV"
+id = "18a79f7020114fb38229c320b62c896f"
+
+[[env.production.kv_namespaces]]
+binding = "KV_FEATURE_FLAGS"
+id = "5458432244bf47d387bdb90b1c3f9da9"
+
+[[env.production.r2_buckets]]
+binding = "CLIPS_R2"
+bucket_name = "lofi-radio-clips-production"
+
+[[env.production.r2_buckets]]
+binding = "AUDIO_R2"
+bucket_name = "lofi-radio-audio-production"
+
+[[env.production.r2_buckets]]
+binding = "DATA_R2"
+bucket_name = "lofi-radio-data-production"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+API_VERSION = "v1"
+CONTENT_FETCH_INTERVAL = "900"
+TTS_MAX_CHARS = "30000"
+KV_SIZE_LIMIT = "10485760"
+STRIPE_PUBLISHABLE_KEY_PRODUCTION = "pk_live_production_placeholder"
+STRIPE_PRO_PRICE_ID_PRODUCTION = "price_production_placeholder"
+AD_INTERVAL_SECONDS = "600"
+AD_VOLUME_LEVEL = "0.7"
+VAST_TAG_URL = "https://production.example.com/vast.xml" 

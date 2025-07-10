@@ -6,6 +6,7 @@
         campfire: 1,
         jungle: 1,
         main_track: 1,
+        voice: 1,
     };
     // Load previous vols or defualt
     let volumes =
@@ -35,6 +36,10 @@
     }
     function updateMainTrackVolume(e) {
         volumes.main_track = parseFloat(e.target.value);
+        SaveVolume();
+    }
+    function updateVoiceVolume(e) {
+        volumes.voice = parseFloat(e.target.value);
         SaveVolume();
     }
 </script>
@@ -104,6 +109,19 @@
             max="1"
             step="0.01"
             on:input={updateMainTrackVolume}
+        />
+    </section>
+    <section id="voice-volume">
+        <h5>Voice Narration</h5>
+        <p>{Math.round((volumes.voice || 1) * 100)}</p>
+        <input
+            id="volume-slider"
+            type="range"
+            bind:value={volumes.voice}
+            min="0.01"
+            max="1"
+            step="0.01"
+            on:input={updateVoiceVolume}
         />
     </section>
 </div>

@@ -2,11 +2,11 @@ import Chords from './Chords';
 import Chord from './Chord';
 
 class ChordProgression {
-    static generate(length) {
+    static generate(length: number): Chord[] | null {
         if(length < 2)
             return null;
 
-        const progression = [];
+        const progression: Chord[] = [];
         let chord = Chords[Math.floor(Math.random()*Chords.length)];
         
         for(let i = 0; i < length; i++) {

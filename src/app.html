@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#191414" />
+		<meta name="description" content="Lo-Fi Radio - Procedural lo-fi music with AI-voiced information clips" />
+		<title>Lo-Fi Radio</title>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover" class="bg-[#191414] text-white overflow-hidden">
+		<div style="display: contents">%sveltekit.body%</div>
+		<script>
+			// Initialize Clerk environment for frontend
+			window.CLERK_ENVIRONMENT = {
+				publishableKey: '%env.PUBLIC_CLERK_PUBLISHABLE_KEY%'
+			};
+			
+			// Initialize PostHog analytics configuration
+			window.__POSTHOG_API_KEY__ = '%env.PUBLIC_POSTHOG_API_KEY%';
+			
+			// Initialize Sentry error monitoring configuration
+			window.__SENTRY_DSN__ = '%env.PUBLIC_SENTRY_DSN%';
+		</script>
+		<script>
+			// Disable service worker in development
+			if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/sw.js')
+						.then((registration) => {
+							console.log('SW registered: ', registration);
+						})
+						.catch((registrationError) => {
+							console.log('SW registration failed: ', registrationError);
+						});
+				});
+			} else if ('serviceWorker' in navigator && window.location.hostname === 'localhost') {
+				// Unregister any existing service worker in development
+				navigator.serviceWorker.getRegistrations().then(function(registrations) {
+					for(let registration of registrations) {
+						registration.unregister();
+						console.log('SW unregistered for development');
+					}
+				});
+			}
+		</script>
+	</body>
+</html> 

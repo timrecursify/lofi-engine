@@ -1,25 +1,39 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import * as Tone from 'tone';
+    import { browser } from '$app/environment';
   
     export let audio; // This will receive the Tone.Master or other audio source
   
-    const fft = new Tone.FFT(16);
+    let Tone: any = null;
+    let fft: any = null;
     let freqs = Array(16).fill(-100); // Initialize with default values
-    let animationFrame;
+    let animationFrame: number | undefined;
   
     function animate() {
-      freqs = [...fft.getValue()];
+      if (fft) {
+        freqs = [...fft.getValue()];
+      }
       animationFrame = requestAnimationFrame(animate);
     }
   
-    onMount(() => {
+    onMount(async () => {
+      if (!browser) return;
+      
+      // Dynamically import Tone.js on client side
+      const ToneModule = await import('tone');
+      Tone = ToneModule.default || ToneModule;
+      
+      fft = new Tone.FFT(16);
       audio.connect(fft);
       animationFrame = requestAnimationFrame(animate);
       
       return () => {
-        cancelAnimationFrame(animationFrame);
-        audio.disconnect(fft);
+        if (animationFrame !== undefined) {
+          cancelAnimationFrame(animationFrame);
+        }
+        if (audio && fft) {
+          audio.disconnect(fft);
+        }
       };
     });
   

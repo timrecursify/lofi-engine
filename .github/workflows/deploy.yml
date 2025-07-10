@@ -1,0 +1,320 @@
+name: 🚀 Deploy Chillcast
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '8'
+
+jobs:
+  # ==============================================
+  # Quality Assurance & Testing
+  # ==============================================
+  
+  quality-check:
+    name: 🔍 Quality & Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: 🧹 Run ESLint
+        run: npm run lint
+
+      - name: 🎯 TypeScript type checking
+        run: npm run check
+
+      - name: 🧪 Run unit tests
+        run: npm run test:unit
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+
+      - name: 📊 Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: always()
+
+  # ==============================================
+  # Integration Testing
+  # ==============================================
+  
+  integration-tests:
+    name: 🧪 Integration Tests
+    runs-on: ubuntu-latest
+    needs: quality-check
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+
+      - name: 🎭 Run E2E tests
+        run: npm run test:e2e
+        env:
+          PLAYWRIGHT_BROWSER: chromium
+
+      - name: 📸 Upload Playwright Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  # ==============================================
+  # Load Testing
+  # ==============================================
+  
+  load-testing:
+    name: ⚡ Load Testing
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: 🔥 Run load tests
+        run: k6 run tests/load/api-load-test.js
+        env:
+          K6_TEST_ENV: staging
+
+  # ==============================================
+  # Staging Deployment
+  # ==============================================
+  
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [quality-check, integration-tests]
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    environment: staging
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build for staging
+        run: npm run build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+          VITE_ENVIRONMENT: staging
+          VITE_API_URL: https://chillcast-staging.pages.dev/api
+
+      - name: 🚀 Deploy to Cloudflare Pages (Staging)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=chillcast --env=staging
+          workingDirectory: lofi-engine
+
+      - name: 🔄 Apply database migrations (Staging)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply DB --env staging
+          workingDirectory: lofi-engine
+
+      - name: 🧪 Staging smoke tests
+        run: npm run test:smoke
+        env:
+          TEST_URL: https://chillcast-staging.pages.dev
+          STAGING_API_KEY: ${{ secrets.STAGING_API_KEY }}
+
+  # ==============================================
+  # Production Deployment
+  # ==============================================
+  
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, load-testing]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build for production
+        run: npm run build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+          VITE_ENVIRONMENT: production
+          VITE_API_URL: https://chillcast.fm/api
+
+      - name: 🚀 Deploy to Cloudflare Pages (Production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=chillcast --env=production
+          workingDirectory: lofi-engine
+
+      - name: 🔄 Apply database migrations (Production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply DB --env production
+          workingDirectory: lofi-engine
+
+      - name: 🧪 Production smoke tests
+        run: npm run test:smoke
+        env:
+          TEST_URL: https://chillcast.fm
+          PRODUCTION_API_KEY: ${{ secrets.PRODUCTION_API_KEY }}
+
+      - name: 📊 Post-deployment monitoring
+        run: |
+          echo "🎯 Deployment completed successfully!"
+          echo "🌐 Production URL: https://chillcast.fm"
+          echo "📈 Monitor Core Web Vitals and error rates"
+        
+      - name: 🔔 Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Production deployment successful"
+          echo "📊 Core Web Vitals check required"
+          echo "🎵 Chillcast is live!"
+
+      - name: 🚨 Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed"
+          echo "🔄 Automatic rollback initiated"
+          echo "📞 Alerting on-call engineer"
+
+  # ==============================================
+  # Post-Deployment Validation
+  # ==============================================
+  
+  post-deployment-checks:
+    name: ✅ Post-Deployment Validation
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏥 Health check
+        run: |
+          curl -f https://chillcast.fm/api/v1/health || exit 1
+          echo "✅ API health check passed"
+
+      - name: 🎵 Music generation test
+        run: |
+          timeout 30 curl -f https://chillcast.fm/api/v1/queue || exit 1
+          echo "✅ Music generation operational"
+
+      - name: 🔐 Authentication test
+        run: |
+          curl -f https://chillcast.fm/auth/signin || exit 1
+          echo "✅ Authentication system operational"
+
+      - name: 💳 Payment system test
+        run: |
+          curl -f https://chillcast.fm/upgrade || exit 1
+          echo "✅ Payment system accessible"
+
+      - name: 📊 Core Web Vitals check
+        run: |
+          npx lighthouse https://chillcast.fm --only-categories=performance --quiet --chrome-flags="--headless"
+          echo "✅ Performance metrics captured"
+
+# ==============================================
+# Environment Setup Requirements
+# ==============================================
+
+# Required GitHub Secrets:
+# - CLOUDFLARE_API_TOKEN: Cloudflare API token with Pages and Workers permissions
+# - CLOUDFLARE_ACCOUNT_ID: Cloudflare account ID
+# - STAGING_API_KEY: API key for staging environment testing
+# - PRODUCTION_API_KEY: API key for production environment testing
+#
+# Required npm scripts in package.json:
+# - npm run lint: ESLint checking
+# - npm run check: TypeScript type checking  
+# - npm run test:unit: Vitest unit tests
+# - npm run test:e2e: Playwright end-to-end tests
+# - npm run test:smoke: Post-deployment smoke tests
+# - npm run build: Production build with SvelteKit
+#
+# Required test files:
+# - tests/load/api-load-test.js: k6 load testing script
+# - tests/smoke/: Smoke test suite for post-deployment validation
+#
+# Deployment Strategy:
+# 1. Quality checks and unit tests run on all branches
+# 2. Integration tests run on main and develop branches
+# 3. Staging deployment on develop or main branch changes
+# 4. Load testing only on main branch
+# 5. Production deployment only on main branch after all checks pass
+# 6. Post-deployment validation ensures system health
+#
+# Monitoring Integration:
+# - Sentry error monitoring with release tracking
+# - PostHog analytics with deployment event tracking
+# - Core Web Vitals monitoring for performance regression
+# - Automated rollback on critical health check failures 

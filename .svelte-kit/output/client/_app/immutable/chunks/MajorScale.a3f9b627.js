@@ -1,0 +1,1 @@
+const t=[0,2,4,5,7,9,11],e=[...t,...t.map(c=>c+12)],o=[...e,...t.map(c=>c+24)],s=[...t.map(c=>c-12).slice(4),...t,...t.map(c=>c+12).slice(0,5)];export{e as doubleOct,s as fiveToFive,t as singleOct,o as tripleOct};

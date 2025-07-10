@@ -6,13 +6,15 @@ const samples = {C4: samplePath};
 const vol = new Tone.Volume(-3);
 
 class Kick {
-	constructor(cb) {
+	public sampler: Tone.Sampler;
+
+	constructor(cb: () => void) {
 		this.sampler = new Tone.Sampler(samples, () => {
 			cb();
-		}).chain(vol,Tone.Master);
+		}).chain(vol, Tone.getDestination());
 	}
 
-	sampler() {
+	getSampler(): Tone.Sampler {
 		return this.sampler;
 	}
 }

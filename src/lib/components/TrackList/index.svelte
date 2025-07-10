@@ -1,6 +1,8 @@
 <script lang="ts">
   import { IconChevronDown } from "@tabler/icons-svelte";
   import TrackListItem from "./TrackListItem.svelte";
+  import { onMount, onDestroy } from "svelte";
+  import { browser } from "$app/environment";
 
   let tracks = [
     {
@@ -60,9 +62,18 @@
   ];
 
   let activeAudios = [];
+  let visibleTrackId = 1;
 
-  // Shortcut for stoping all effects with "k" key
-  window.addEventListener("keydown", (e) => {
+  function nextTrack() {
+    visibleTrackId < 9 ? visibleTrackId++ : (visibleTrackId = 1);
+  }
+  
+  function prevTrack() {
+    visibleTrackId > 1 ? visibleTrackId-- : (visibleTrackId = 9);
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    // Shortcut for stopping all effects with "k" key
     if (e.key === "k") {
       activeAudios.forEach((item) => {
         item.audio.pause();
@@ -72,61 +83,68 @@
       tracks.forEach((track) => {
         track.isPlaying = false;
       });
+      tracks = tracks; // Trigger reactivity
+      return;
     }
-  });
 
-  // Add toggle for each track with number keys
-  //  through (1-9) on keyboard
-  for (let i = 1; i < 10; i++) {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === i.toString()) {
-        tracks[i - 1].isPlaying = !tracks[i - 1].isPlaying;
-        if (tracks[i - 1].isPlaying) {
-          const audio = new Audio(
-            `assets/engine/tracks/${tracks[i - 1].track}`
-          );
-          audio.play();
-          audio.loop = true;
-          activeAudios.push({
-            id: tracks[i - 1].id,
-            audio,
-          });
-          visibleTrackId = i;
-        } else {
-          activeAudios.forEach((item) => {
-            if (item.id === tracks[i - 1].id) {
-              item.audio.pause();
-              // Remove from activeAudios
-              activeAudios = activeAudios.filter(
-                (item) => item.id !== tracks[i - 1].id
-              );
-            }
-          });
-        }
+    // Handle number keys 1-9 for track toggles
+    const keyNum = parseInt(e.key);
+    if (keyNum >= 1 && keyNum <= 9) {
+      const trackIndex = keyNum - 1;
+      tracks[trackIndex].isPlaying = !tracks[trackIndex].isPlaying;
+      
+      if (tracks[trackIndex].isPlaying) {
+        const audio = new Audio(
+          `assets/engine/tracks/${tracks[trackIndex].track}`
+        );
+        audio.play();
+        audio.loop = true;
+        activeAudios.push({
+          id: tracks[trackIndex].id,
+          audio,
+        });
+        visibleTrackId = keyNum;
+      } else {
+        activeAudios.forEach((item) => {
+          if (item.id === tracks[trackIndex].id) {
+            item.audio.pause();
+          }
+        });
+        // Remove from activeAudios
+        activeAudios = activeAudios.filter(
+          (item) => item.id !== tracks[trackIndex].id
+        );
       }
-    });
-  }
+      tracks = tracks; // Trigger reactivity
+      return;
+    }
 
-  // Visible tracks animation
-  let visibleTrackId = 1;
-  window.addEventListener("keydown", (e) => {
-    // Ignore change when event is targeting inputs
+    // Handle arrow keys for navigation
     if (e.target instanceof HTMLElement && !e.target.closest("input")) {
-      if (e.key == "ArrowUp") {
+      if (e.key === "ArrowUp") {
         prevTrack();
       }
-      if (e.key == "ArrowDown") {
+      if (e.key === "ArrowDown") {
         nextTrack();
       }
     }
+  }
+
+  onMount(() => {
+    if (browser) {
+      window.addEventListener("keydown", handleKeydown);
+    }
   });
 
-  function nextTrack() {
-    visibleTrackId < 9 ? visibleTrackId++ : (visibleTrackId = 1);
-  }
-  function prevTrack() {
-    visibleTrackId > 1 ? visibleTrackId-- : (visibleTrackId = 9);
-  }
+  onDestroy(() => {
+    if (browser) {
+      window.removeEventListener("keydown", handleKeydown);
+      // Clean up any playing audio
+      activeAudios.forEach((item) => {
+        item.audio.pause();
+      });
+    }
+  });
 </script>
 
 <div class="track-list">

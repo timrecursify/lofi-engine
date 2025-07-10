@@ -1,0 +1,1 @@
+import{Filter as s,Volume as t,StereoWidener as a,Sampler as n,getDestination as r}from"./index.ccfc3e1e.js";const l="assets/engine/DrumSamples/hat.mp3",o={C4:l},m=new s(2400,"lowpass"),p=new t(-9),c=new a(.7);class h{sampler;constructor(e){this.sampler=new n(o,()=>{e()}).chain(m,p,c,r())}getSampler(){return this.sampler}}export{h as default};

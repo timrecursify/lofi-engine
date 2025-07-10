@@ -1,0 +1,141 @@
+{
+	"/": [
+		"src/routes/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin": [
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/analytics": [
+		"src/routes/admin/analytics/+page.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/content": [
+		"src/routes/admin/content/+page.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/health": [
+		"src/routes/admin/health/+page.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/settings": [
+		"src/routes/admin/settings/+page.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/users": [
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/api/user/preferences": [
+		"src/routes/api/user/preferences/+server.ts"
+	],
+	"/api/v1/admin/analytics": [
+		"src/routes/api/v1/admin/analytics/+server.ts"
+	],
+	"/api/v1/admin/content/clips": [
+		"src/routes/api/v1/admin/content/clips/+server.ts"
+	],
+	"/api/v1/admin/content/generate": [
+		"src/routes/api/v1/admin/content/generate/+server.ts"
+	],
+	"/api/v1/admin/content/queue": [
+		"src/routes/api/v1/admin/content/queue/+server.ts"
+	],
+	"/api/v1/admin/content/sources": [
+		"src/routes/api/v1/admin/content/sources/+server.ts"
+	],
+	"/api/v1/admin/content/sources/[id]/toggle": [
+		"src/routes/api/v1/admin/content/sources/[id]/toggle/+server.ts"
+	],
+	"/api/v1/admin/feature-flags": [
+		"src/routes/api/v1/admin/feature-flags/+server.ts"
+	],
+	"/api/v1/admin/health": [
+		"src/routes/api/v1/admin/health/+server.ts"
+	],
+	"/api/v1/admin/health/alerts": [
+		"src/routes/api/v1/admin/health/alerts/+server.ts"
+	],
+	"/api/v1/admin/health/alerts/[id]/acknowledge": [
+		"src/routes/api/v1/admin/health/alerts/[id]/acknowledge/+server.ts"
+	],
+	"/api/v1/admin/health/alerts/[id]/resolve": [
+		"src/routes/api/v1/admin/health/alerts/[id]/resolve/+server.ts"
+	],
+	"/api/v1/admin/metrics": [
+		"src/routes/api/v1/admin/metrics/+server.ts"
+	],
+	"/api/v1/admin/users": [
+		"src/routes/api/v1/admin/users/+server.ts"
+	],
+	"/api/v1/admin/users/[id]/ban": [
+		"src/routes/api/v1/admin/users/[id]/ban/+server.ts"
+	],
+	"/api/v1/admin/users/[id]/impersonate": [
+		"src/routes/api/v1/admin/users/[id]/impersonate/+server.ts"
+	],
+	"/api/v1/admin/users/[id]/reset-trial": [
+		"src/routes/api/v1/admin/users/[id]/reset-trial/+server.ts"
+	],
+	"/api/v1/admin/users/[id]/subscription": [
+		"src/routes/api/v1/admin/users/[id]/subscription/+server.ts"
+	],
+	"/api/v1/admin/users/[id]/unban": [
+		"src/routes/api/v1/admin/users/[id]/unban/+server.ts"
+	],
+	"/api/v1/auth/magic-link": [
+		"src/routes/api/v1/auth/magic-link/+server.ts"
+	],
+	"/api/v1/checkout/session": [
+		"src/routes/api/v1/checkout/session/+server.ts"
+	],
+	"/api/v1/clip/[id]": [
+		"src/routes/api/v1/clip/[id]/+server.ts"
+	],
+	"/api/v1/cron/cleanup": [
+		"src/routes/api/v1/cron/cleanup/+server.ts"
+	],
+	"/api/v1/cron/content-generation": [
+		"src/routes/api/v1/cron/content-generation/+server.ts"
+	],
+	"/api/v1/feature-flags": [
+		"src/routes/api/v1/feature-flags/+server.ts"
+	],
+	"/api/v1/queue": [
+		"src/routes/api/v1/queue/+server.ts"
+	],
+	"/api/v1/test/content-pipeline": [
+		"src/routes/api/v1/test/content-pipeline/+server.ts"
+	],
+	"/api/v1/test/payment-flow": [
+		"src/routes/api/v1/test/payment-flow/+server.ts"
+	],
+	"/api/v1/user/subscription": [
+		"src/routes/api/v1/user/subscription/+server.ts"
+	],
+	"/api/v1/webhooks/clerk": [
+		"src/routes/api/v1/webhooks/clerk/+server.ts"
+	],
+	"/api/v1/webhooks/stripe": [
+		"src/routes/api/v1/webhooks/stripe/+server.ts"
+	],
+	"/auth/callback": [
+		"src/routes/+layout.server.ts"
+	],
+	"/auth/error": [
+		"src/routes/+layout.server.ts"
+	],
+	"/auth/signin": [
+		"src/routes/+layout.server.ts"
+	],
+	"/upgrade": [
+		"src/routes/+layout.server.ts"
+	]
+}

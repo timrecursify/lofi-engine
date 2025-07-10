@@ -1,0 +1,1 @@
+import{r as i}from"../../../chunks/index.js";const a=async({locals:s})=>{const{auth:e}=s;if(!e.userId)throw i(302,"/auth/signin");const r=e.user?.publicMetadata?.role;if(!r||r!=="admin"&&r!=="super-admin")throw i(302,"/");return{user:e.user,isAdmin:r==="admin"||r==="super-admin",isSuperAdmin:r==="super-admin"}};export{a as load};

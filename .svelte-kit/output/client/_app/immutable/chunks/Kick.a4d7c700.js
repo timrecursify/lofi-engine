@@ -1,0 +1,1 @@
+import{Volume as s,Sampler as t,getDestination as a}from"./index.ccfc3e1e.js";const m="assets/engine/DrumSamples/kick.mp3",r={C4:m},l=new s(-3);class p{sampler;constructor(e){this.sampler=new t(r,()=>{e()}).chain(l,a())}getSampler(){return this.sampler}}export{p as default};

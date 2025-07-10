@@ -136,3 +136,59 @@ We welcome contributions from the community! If you're interested in contributin
 ## License
 This project is licensed under the [MIT License](LICENSE).
 Feel free to use, modify, and distribute this code as per the terms of the license.
+
+## What's New: Voice Narration
+
+The latest update adds AI voice narration that seamlessly integrates with the Lo-Fi music:
+
+- **3 Voice Channels**: News, Education, and Weather content
+- **Auto-Ducking**: Music automatically lowers when voice plays
+- **Stop Control**: Easily stop narration mid-playback
+- **Volume Control**: Adjust voice volume independently
+- **Keyboard Shortcuts**: V to open menu, 1-3 to play content
+
+## Voice Content
+
+The voice narration feature includes:
+- **News**: Latest updates and headlines
+- **Education**: Learn something new
+- **Weather**: Current conditions and forecasts
+
+Voice clips are pre-loaded for instant playback with <2s latency.
+
+## Technical Details
+
+- **Framework**: Svelte + Vite
+- **Audio Engine**: Tone.js
+- **Music Generation**: Procedural using chord progressions
+- **Voice Integration**: Pre-recorded ElevenLabs clips
+- **Mixing**: Real-time audio ducking and level management
+
+## Building for Production
+
+```bash
+# Build the application
+pnpm tauri:b
+
+# Preview the production build
+pnpm tauri:d
+```
+
+## Desktop App (Tauri)
+
+To build as a desktop application:
+
+```bash
+# Development
+pnpm tauri:d
+
+# Build
+pnpm tauri:b
+```
+
+## Credits
+
+- Original Lo-Fi Engine by [original author]
+- Voice narration integration for MVP testing
+- ElevenLabs for voice synthesis
+- Tone.js for audio processing

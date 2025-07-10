@@ -1,18 +1,10 @@
+import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
-import sveltePreprocess from "svelte-preprocess";
 
 // https://vitejs.dev/config/
-export default defineConfig(async () => ({
-  base: "./",
+export default defineConfig({
   plugins: [
-    svelte({
-      preprocess: [
-        sveltePreprocess({
-          typescript: true,
-        }),
-      ],
-    }),
+    sveltekit(),
   ],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -20,18 +12,37 @@ export default defineConfig(async () => ({
   clearScreen: false,
   // tauri expects a fixed port, fail if that port is not available
   server: {
-    port: 1420,
-    strictPort: true,
+    port: process.env.TAURI_PLATFORM ? 1420 : 5173,
+    strictPort: !!process.env.TAURI_PLATFORM,
+    host: true,
   },
   // to make use of `TAURI_DEBUG` and other env variables
   // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
   envPrefix: ["VITE_", "TAURI_"],
   build: {
-    // Tauri supports es2021
-    target: process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13",
+    // For Tauri: chrome105/safari13, for web: modern browsers that support BigInt
+    target: process.env.TAURI_PLATFORM 
+      ? (process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13")
+      : ["chrome91", "firefox90", "safari14", "edge91"], // Modern browsers with BigInt support
     // don't minify for debug builds
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
   },
-}));
+  ssr: {
+    // Exclude Tone.js and all engine files from SSR as they're client-side audio libraries
+    noExternal: [],
+    external: ["tone"]
+  },
+  resolve: {
+    alias: {
+      // Make Tone.js a no-op during SSR
+      'tone': 'tone'
+    }
+  },
+  optimizeDeps: {
+    // Include Tone.js in dependency optimization
+    include: ["tone"],
+    exclude: []
+  }
+});
