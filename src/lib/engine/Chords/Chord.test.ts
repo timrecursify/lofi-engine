@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Chord from './Chord';
-import { singleOct } from './MajorScale';
 
 describe('Chord', () => {
     afterEach(() => {
@@ -8,9 +7,18 @@ describe('Chord', () => {
     });
 
     it('maps each major-scale degree to its semitone distance', () => {
-        singleOct.forEach((semitones, index) => {
+        const expectedSemitones = [0, 2, 4, 5, 7, 9, 11];
+        expectedSemitones.forEach((semitones, index) => {
             expect(new Chord(index + 1, [], []).getSemitoneDist()).toBe(semitones);
         });
+    });
+
+    it('generates a mode from octave-extended major intervals', () => {
+        const intervals = [12, 16, 19];
+        const chord = new Chord(1, intervals, []);
+
+        expect(chord.generateMode()).toEqual([0, 4, 7]);
+        expect(intervals).toEqual([12, 16, 19]);
     });
 
     it('generates a root voicing with ascending octave-adjusted intervals', () => {
