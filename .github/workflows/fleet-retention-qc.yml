@@ -1,0 +1,54 @@
+name: Fleet retention QC
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/deploy.yml
+      - .github/workflows/fleet-retention-qc.yml
+
+permissions:
+  contents: read
+
+jobs:
+  retention-qc:
+    name: Build and focused player tests
+    runs-on: [self-hosted, gsp]
+    timeout-minutes: 15
+    steps:
+      - name: Check out the pull request head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Assert the checked out revision
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          test -n "$EXPECTED_SHA"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test "$(git rev-parse --verify HEAD^{commit})" = "$EXPECTED_SHA"
+
+      - name: Verify three-day upload retention
+        run: |
+          grep -Eq 'retention-days:[[:space:]]*3([[:space:]]|$)' .github/workflows/deploy.yml
+
+      - name: Install locked project dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the application
+        run: nice -n 19 timeout 900 pnpm run build
+
+      - name: Run focused frontend and player unit tests
+        run: |
+          test -n "$(find src/lib/components src/lib/services -type f \( -name '*.test.ts' -o -name '*.test.js' -o -name '*.spec.ts' -o -name '*.spec.js' \) -print -quit)"
+          nice -n 19 timeout 900 pnpm exec vitest run src/lib/components src/lib/services --reporter=verbose
+
+      - name: Upload focused test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fleet-retention-qc-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 3
