@@ -17,7 +17,7 @@ jobs:
   
   quality-check:
     name: 🔍 Quality & Linting
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -54,7 +54,7 @@ jobs:
   
   integration-tests:
     name: 🧪 Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     needs: quality-check
     steps:
       - name: 📥 Checkout code
@@ -92,7 +92,7 @@ jobs:
   
   load-testing:
     name: ⚡ Load Testing
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     needs: quality-check
     if: github.ref == 'refs/heads/main'
     steps:
@@ -118,7 +118,7 @@ jobs:
   
   deploy-staging:
     name: 🚀 Deploy to Staging
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     needs: [quality-check, integration-tests]
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
     environment: staging
@@ -170,7 +170,7 @@ jobs:
   
   deploy-production:
     name: 🚀 Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     needs: [deploy-staging, load-testing]
     if: github.ref == 'refs/heads/main'
     environment: production
@@ -242,7 +242,7 @@ jobs:
   
   post-deployment-checks:
     name: ✅ Post-Deployment Validation
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     needs: deploy-production
     if: github.ref == 'refs/heads/main'
     steps:
