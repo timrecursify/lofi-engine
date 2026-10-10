@@ -1,0 +1,58 @@
+name: Fleet retention QC
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/fleet-retention-qc.yml'
+      - '.github/workflows/deploy.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'src/**'
+      - 'tests/**'
+
+permissions:
+  contents: read
+
+jobs:
+  retention-qc:
+    name: Retention QC
+    runs-on: [self-hosted, gsp]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact pull request head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Verify exact full commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='${{ github.event.pull_request.head.sha }}'
+          actual="$(git rev-parse HEAD)"
+          test "${#expected}" -eq 40
+          test "$actual" = "$expected"
+
+      - name: Verify upload retention configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(grep -c 'uses: actions/upload-artifact@v3' .github/workflows/deploy.yml)" -eq 1
+          grep -Fq 'retention-days: 3' .github/workflows/deploy.yml
+
+      - name: Install locked dependencies
+        run: nice -n 19 timeout 900 pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: nice -n 19 timeout 900 pnpm run build
+
+      - name: Run focused frontend/player unit tests
+        shell: bash
+        run: |
+          set -uo pipefail
+          output="$(nice -n 19 timeout 900 pnpm exec vitest run 'src/**/*.{test,spec}.{js,ts}' --reporter=verbose 2>&1)"
+          status=$?
+          printf '%s\n' "$output"
+          test "$status" -eq 0
+          printf '%s\n' "$output" | grep -Eq '[1-9][0-9]* (passed|pass)'
