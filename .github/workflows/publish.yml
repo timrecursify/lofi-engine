@@ -10,9 +10,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-20.04, windows-latest]
+        # DELTA-001354: macOS and Windows entries removed, no self-hosted runner for them (Tim 2026-10-10 no hosted minutes)
+        platform: [linux]
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: [self-hosted, fedci]
     steps:
       - uses: actions/checkout@v3
       - name: setup node
@@ -22,7 +23,7 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
