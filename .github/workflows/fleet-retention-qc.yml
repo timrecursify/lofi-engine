@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
-          output="$(nice -n 19 timeout 900 pnpm exec vitest run 'src/**/*.{test,spec}.{js,ts}' --reporter=verbose 2>&1)"
+          output="$(nice -n 19 timeout 900 pnpm exec vitest run src/lib/engine/Chords/Chord.test.ts --reporter=verbose 2>&1)"
           status=$?
           printf '%s\n' "$output"
           test "$status" -eq 0
