@@ -20,17 +20,6 @@
     "tauri:d": "tauri dev",
     "tauri:b": "tauri build"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@clerk/shared",
-      "browser-tabs-lock",
-      "bufferutil",
-      "core-js",
-      "esbuild",
-      "svelte-preprocess",
-      "utf-8-validate"
-    ]
-  },
   "dependencies": {
     "@auth/core": "^0.40.0",
     "@auth/sveltekit": "^1.10.0",
