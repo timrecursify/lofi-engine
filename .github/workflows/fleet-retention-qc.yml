@@ -38,7 +38,7 @@ jobs:
             | grep -Eq 'retention-days:[[:space:]]*3([[:space:]]|$)'
 
       - name: Install locked project dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build the application
         run: nice -n 19 timeout 900 npm run build
