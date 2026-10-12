@@ -38,15 +38,15 @@ jobs:
             | grep -Eq 'retention-days:[[:space:]]*3([[:space:]]|$)'
 
       - name: Install locked project dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Build the application
-        run: nice -n 19 timeout 900 pnpm run build
+        run: nice -n 19 timeout 900 npm run build
 
       - name: Run focused frontend and player unit tests
         run: |
           test -n "$(find src/lib/components src/lib/services -type f \( -name '*.test.ts' -o -name '*.test.js' -o -name '*.spec.ts' -o -name '*.spec.js' \) -print -quit)"
-          nice -n 19 timeout 900 pnpm exec vitest run src/lib/components src/lib/services --reporter=verbose
+          nice -n 19 timeout 900 npx --no-install vitest run src/lib/components src/lib/services --reporter=verbose
 
       - name: Upload focused test results
         if: always()
