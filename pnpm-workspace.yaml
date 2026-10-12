@@ -1,9 +1,9 @@
-onlyBuiltDependencies:
-  - '@clerk/shared'
-  - '@sveltejs/kit'
-  - browser-tabs-lock
-  - bufferutil
-  - core-js
-  - esbuild
-  - svelte-preprocess
-  - utf-8-validate
+allowBuilds:
+  '@clerk/shared': true
+  '@sveltejs/kit': true
+  browser-tabs-lock: true
+  bufferutil: true
+  core-js: true
+  esbuild: true
+  svelte-preprocess: true
+  'utf-8-validate': true
