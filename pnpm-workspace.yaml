@@ -1,0 +1,9 @@
+allowBuilds:
+  '@clerk/shared': true
+  '@sveltejs/kit': true
+  browser-tabs-lock: true
+  bufferutil: true
+  core-js: true
+  esbuild: true
+  svelte-preprocess: true
+  'utf-8-validate': true
